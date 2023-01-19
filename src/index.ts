@@ -13,20 +13,16 @@ const generateNanoID = () => nanoid(16);
 
 // Define seeding database function and immeditedly invoking it
 const seedDatabase = async () => {
-  if ((await prismaDBClient.post.count()) === 0) {
-    await prismaDBClient.post.createMany({
+  if ((await prismaDBClient.submission.count()) === 0) {
+    await prismaDBClient.submission.createMany({
       data: [
         {
           id: generateNanoID(),
-          slug: 'ultimate-node-backend-post',
-          title: 'Ultimate Node Stack 2022',
-          publishedAt: new Date(),
-        },
-        {
-          id: generateNanoID(),
-          slug: 'redraft-post',
-          title: 'Redraft Post',
-          publishedAt: new Date(),
+          submittedAt: new Date(),
+          data: {
+            name: 'Kevin wade',
+            facebook: 'keviiiiiin',
+          },
         },
       ],
     });
@@ -41,7 +37,7 @@ app.use(morgan('dev'));
 
 // Demo RESTAPI endpoint setup
 app.get('/', async (req, res) => {
-  const posts = await prismaDBClient.post.findMany();
+  const posts = await prismaDBClient.submission.findMany();
   res.json(posts);
 });
 
