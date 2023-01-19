@@ -1,5 +1,5 @@
 # Loading base image from node
-FROM node:17 
+FROM node:18.13
 
 # Setting up working directory for our application 
 WORKDIR /usr/share/app
