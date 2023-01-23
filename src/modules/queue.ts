@@ -9,8 +9,6 @@ const QUEUE_NAME = 'default';
 if (!process.env.REDIS_HOST)
   console.warn('REDIS_HOST environment value is null');
 
-console.log('REDIS_HOST ENV Value', process.env.REDIS_HOST);
-
 const connection = {
   host: process.env.REDIS_HOST,
 };
@@ -24,7 +22,6 @@ const worker = new Worker(
   async (job) => {
     if (job.name === 'generateSubmisson') {
       const submission = await ModGenerate.submission();
-      console.log('submission data', submission);
     }
   },
   { connection }
