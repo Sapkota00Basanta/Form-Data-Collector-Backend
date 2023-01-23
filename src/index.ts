@@ -1,39 +1,22 @@
-import { PrismaClient } from '@prisma/client';
-import express from 'express';
+import http from 'http';
+import cors from 'cors';
 import morgan from 'morgan';
-import { nanoid } from 'nanoid';
+import express from 'express';
+import bodyParser from 'body-parser';
+import { ApolloServer } from '@apollo/server';
+import { resolvers } from './graphql/resolvers';
+import { graphqlSchema } from './graphql/schema';
+import { prismaDBClient } from './modules/database';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 
-// Define a new prisma client
-const prismaDBClient = new PrismaClient({
-  log: ['error', 'info', 'query', 'warn'],
-}); // Viewing all kinds of logs in development
-
-// generate random nano id
-const generateNanoID = () => nanoid(16);
-
-// Define seeding database function and immeditedly invoking it
-const seedDatabase = async () => {
-  if ((await prismaDBClient.submission.count()) === 0) {
-    await prismaDBClient.submission.createMany({
-      data: [
-        {
-          id: generateNanoID(),
-          submittedAt: new Date(),
-          data: {
-            name: 'Kevin wade',
-            facebook: 'keviiiiiin',
-          },
-        },
-      ],
-    });
-  }
-};
-seedDatabase();
 // Define an express server application
 const app = express();
 
-// Use morgan as default logger for server
-app.use(morgan('dev'));
+// Defining an interfacet for apollo sever
+interface MyContext {
+  token?: string;
+}
 
 // Demo RESTAPI endpoint setup
 app.get('/', async (req, res) => {
@@ -41,8 +24,35 @@ app.get('/', async (req, res) => {
   res.json(posts);
 });
 
-// Start the server & listen on specified port
-const port = Number(process.env.PORT ?? 8080);
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+// Initialized an apollo graphql server
+export const startServer = async () => {
+  const httpServer = http.createServer(app);
+
+  const server = new ApolloServer<MyContext>({
+    typeDefs: graphqlSchema,
+    resolvers: resolvers,
+    csrfPrevention: true,
+    cache: 'bounded',
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  });
+
+  await server.start();
+
+  app.use(
+    '/',
+    cors<cors.CorsRequest>(),
+    bodyParser.json(),
+    morgan('dev'),
+    expressMiddleware(server, {
+      context: async ({ req }) => ({ token: req.headers.token }),
+    })
+  );
+
+  const port = Number(process.env.PORT ?? 8080);
+  await new Promise<void>((resolve) =>
+    httpServer.listen({ host: '0.0.0.0', port }, resolve)
+  );
+  console.log(`🚀 Server ready at http://localhost:${port}/graphql`);
+};
+
+startServer();
