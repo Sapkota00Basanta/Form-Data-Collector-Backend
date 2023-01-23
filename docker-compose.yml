@@ -16,6 +16,10 @@ services:
     environment:
       DATABASE_URL: postgres://postgres@postgres/webapp_dev
       PORT: 8000
+      REDIS_HOST: redis
+
+  redis:
+    image: redis:6.2.5-alpine
 
   postgres:
     image: postgres:14-alpine # More optimized version of postgres

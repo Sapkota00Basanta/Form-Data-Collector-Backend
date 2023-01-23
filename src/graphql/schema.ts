@@ -1,0 +1,18 @@
+export const graphqlSchema = `
+    scalar DateTime
+    scalar JSON
+
+    type Query {
+        submissions: [submission!]!
+    }
+
+    type Mutation {
+        queueSubmissionGeneration(count: Int): Boolean!
+    }
+
+    type submission {
+        id: ID!
+        submittedAt: DateTime!
+        data: JSON!
+    }
+`;
