@@ -16,7 +16,8 @@
     "rebuild:backend": "docker compose build backend && docker compose rm --stop backend && docker compose up -d backend",
     "start": "node dist/index.js",
     "start:docker": "yarn build && node --inspect=0.0.0.0 dist/index.js",
-    "build:types": "graphql-codegen --config codegen.ts"
+    "generate:types": "graphql-codegen --config codegen.ts",
+    "docker:migrate:fix": "docker compose run backend npx prisma db push --schema prisma/schema.prisma"
   },
   "dependencies": {
     "@apollo/server": "^4.3.0",

@@ -5,13 +5,16 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { ApolloServer } from '@apollo/server';
 import { resolvers } from './graphql/resolvers';
-import { graphqlSchema } from './graphql/schema';
 import { prismaDBClient } from './modules/database';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { readFileSync } from 'fs';
 
 // Define an express server application
 const app = express();
+
+// Reading the graphql schema file to pass on types while creating server
+const graphqlSchema = readFileSync('./src/graphql/schema.graphql', 'utf-8');
 
 // Defining an interfacet for apollo sever
 interface MyContext {
